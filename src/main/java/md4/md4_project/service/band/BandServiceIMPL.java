@@ -19,6 +19,7 @@ public class BandServiceIMPL implements IBandService {
     private final String DELETE_BY_ID= "DELETE FROM band where id= ?";
     private final String FIND_BAND_BY_ID="SELECT * FROM BAND WHERE ID=?";
 
+    private final String UPDATE_BAND = "UPDATE band set name=?,avatar=? where id=?";
     @Override
     public void save(Band band) {
 
