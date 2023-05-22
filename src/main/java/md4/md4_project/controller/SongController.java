@@ -29,7 +29,7 @@ public class SongController extends HttpServlet {
     IBandService bandService = new BandServiceIMPL();
     ICategoryService categoryService = new CategoryServiceIMPL();
     ISingerService singerService = new SingerServiceIMPL();
-   ISongService songService = new SongServiceIMPL();
+    ISongService songService = new SongServiceIMPL();
     IUserService userService = new UserServiceIMPL();
 
 
@@ -38,7 +38,7 @@ public class SongController extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
         response.setContentType("text/html; charset=UTF-8");
         String action = request.getParameter("action");
-        System.out.println("action tren doget --->"+action);
+        System.out.println("action tren doget --->" + action);
         if (action == null) {
             action = "";
         }
@@ -156,6 +156,7 @@ public class SongController extends HttpServlet {
         }
     }
 
+
     private void showFormCreatSong(HttpServletRequest request, HttpServletResponse response) {
         RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/content/song/creatSong.jsp");
         request.setAttribute("categories", categoryService.findAll());
@@ -174,44 +175,49 @@ public class SongController extends HttpServlet {
         String name = request.getParameter("name");
         String src = request.getParameter("audio");
         String avatar = request.getParameter("avatar");
+        List<Integer> listSingerId = new ArrayList<>();
+        List<Integer> listBandId = new ArrayList<>();
         System.out.println(src);
         int categoryId = Integer.parseInt(request.getParameter("categories"));
-
+        String artist = "";
         String[] bandIdStr = request.getParameterValues("listBand");
-        int[] bandIds = new int[bandIdStr.length];
-        for (int i = 0; i < bandIdStr.length; i++) {
-            bandIds[i] = Integer.parseInt(bandIdStr[i]);
-        }
-        List<Integer> listBandId = new ArrayList<>();
-        for (int i = 0; i < bandIds.length; i++) {
-            listBandId.add(Integer.valueOf(bandIds[i]));
+        if (bandIdStr!=null) {
+            int[] bandIds = new int[bandIdStr.length];
+            for (int i = 0; i < bandIdStr.length; i++) {
+                bandIds[i] = Integer.parseInt(bandIdStr[i]);
+                artist += " " + bandService.findById(bandIds[i]).getName();
+            }
+
+            for (int i = 0; i < bandIds.length; i++) {
+                listBandId.add(Integer.valueOf(bandIds[i]));
+            }
         }
         String[] singerIdStr = request.getParameterValues("listSinger");
-        int[] singerIds = new int[singerIdStr.length];
-        for (int i = 0; i < singerIdStr.length; i++) {
-            singerIds[i] = Integer.parseInt(singerIdStr[i]);
+        if (singerIdStr!=null) {
+            int[] singerIds = new int[singerIdStr.length];
+            for (int i = 0; i < singerIdStr.length; i++) {
+                singerIds[i] = Integer.parseInt(singerIdStr[i]);
+                artist += " ft " + singerService.findById(singerIds[i]).getName();
+            }
+
+            for (int i = 0; i < singerIds.length; i++) {
+                listSingerId.add(Integer.valueOf(singerIds[i]));
+            }
         }
-        List<Integer> listSingerId = new ArrayList<>();
-        for (int i = 0; i < singerIds.length; i++) {
-            listSingerId.add(Integer.valueOf(singerIds[i]));
-        }
-        System.out.println(listBandId);
-        System.out.println(listSingerId);
-        System.out.println(avatar);
-        System.out.println(src);
+        System.out.println(artist);
         HttpSession session = request.getSession(false);
         User user = (User) session.getAttribute("user");
         int userId = user.getId();
-        Song song = new Song(name, categoryId,listBandId,listSingerId,userId,avatar,src);
-        songService.save(song,request);
-       showAllSong(request, response);
+        Song song = new Song(name, categoryId, listBandId, listSingerId, userId, avatar, src,artist);
+        songService.save(song, request);
+        showAllSong(request, response);
     }
 
     private void detailSong(HttpServletRequest request, HttpServletResponse response) {
         int id = Integer.parseInt(request.getParameter("id"));
-        System.out.println(id);
-        Song song = (Song) songService.findById(id);
-        System.out.println(song.getSrc());
+        Song song = songService.findById(id);
+        System.out.println("artist:" +song.getArtist());
+        songService.updateView(song);
         RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/content/song/detail.jsp");
         request.setAttribute("song", song);
         try {
@@ -222,7 +228,8 @@ public class SongController extends HttpServlet {
             throw new RuntimeException(e);
         }
     }
-    public void backToAdmin(HttpServletRequest request, HttpServletResponse response){
+
+    public void backToAdmin(HttpServletRequest request, HttpServletResponse response) {
         RequestDispatcher dispatcher = request.getRequestDispatcher("WEB-INF/admin/admin2.jsp");
         try {
             dispatcher.forward(request, response);

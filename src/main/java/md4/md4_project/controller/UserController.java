@@ -33,7 +33,7 @@ public class UserController extends HttpServlet {
         if (action == null) {
             action = "";
         }
-        System.out.println("action Do Get " + action);
+        System.out.println("action Do Get "+action);
         switch (action) {
             case "register":
                 showFormRegister(req, resp);
@@ -54,6 +54,7 @@ public class UserController extends HttpServlet {
                 backToAdmin(req, resp);
                 break;
         }
+
     }
 
     @Override
@@ -94,8 +95,10 @@ public class UserController extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
         String role = "user";
+
         Set<String> strRole = new HashSet<>();
         strRole.add(role);
+
         Set<Role> roleSet = new HashSet<>();
         strRole.forEach(role1 -> {
             switch (role1) {
@@ -132,7 +135,9 @@ public class UserController extends HttpServlet {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+//
         }
+
     }
 
     private void showFormLogin(HttpServletRequest request, HttpServletResponse response) {
@@ -182,6 +187,7 @@ public class UserController extends HttpServlet {
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
+
         } else {
             request.setAttribute("validate", "Login failed! Please check your account!");
             showFormLogin(request, response);
